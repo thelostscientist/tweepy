@@ -20,7 +20,8 @@ class API(object):
 
     def __init__(self, auth_handler=None,
                  host='api.twitter.com', search_host='search.twitter.com',
-                 upload_host='upload.twitter.com', cache=None, api_root='/1.1',
+                 ad_host = 'https://ads-api.twitter.com', upload_host='upload.twitter.com', 
+                 cache=None, api_root='/1.1', ad_root = '/0'
                  search_root='', upload_root='/1.1', retry_count=0,
                  retry_delay=0, retry_errors=None, timeout=60, parser=None,
                  compression=False, wait_on_rate_limit=False,
@@ -30,9 +31,11 @@ class API(object):
         :param auth_handler:
         :param host:  url of the server of the rest api, default:'api.twitter.com'
         :param search_host: url of the search server, default:'search.twitter.com'
+        :param ad_host: url of the search server, default:'ads-api.twitter.com'
         :param upload_host: url of the upload server, default:'upload.twitter.com'
         :param cache: Cache to query if a GET method is used, default:None
         :param api_root: suffix of the api version, default:'/1.1'
+        :param ad_root: suffix of the ad api version, default: '/0'
         :param search_root: suffix of the search version, default:''
         :param upload_root: suffix of the upload version, default:'/1.1'
         :param retry_count: number of allowed retries, default:0
@@ -50,8 +53,10 @@ class API(object):
         self.auth = auth_handler
         self.host = host
         self.search_host = search_host
+        self.ad_host = ad_host
         self.upload_host = upload_host
         self.api_root = api_root
+        self.ad_root = ad_root
         self.search_root = search_root
         self.upload_root = upload_root
         self.cache = cache
@@ -1293,7 +1298,46 @@ class API(object):
         )
 
     """ Internal use only """
-
+    @property
+    def ad_accounts(self):
+        """ :reference: https://ads-api.twitter.com/0/stats/accounts/:account_id
+            :allowed_param:'account_id', 'start_time', 'end_time', 'granularity', 'metrics', 'segmentation_type', 'country', 'platform'
+        """
+        return bind_api(
+            ad_api=self,
+            path='/stats/accounts/{account_id}.json',
+            payload_type='account', payload_list=True,
+            allowed_param=['account_id', 'start_time', 'end_time', 'granularity', 
+                           'metrics', 'segmentation_type', 'country', 'platform']
+            require_auth=True
+        )
+    @property
+    def ad_campaign_accounts(self):
+        """ :reference: https://ads-api.twitter.com/0/stats/accounts/:account_id/campaigns
+            :allowed_param:'account_id', 'start_time', 'end_time', 'granularity', 'metrics', 'segmentation_type', 'country', 'platform'
+        """
+        return bind_api(
+            ad_api=self,
+            path='/stats/accounts/{account_id}/campaigns/{campaign_ids}.json',
+            payload_type='account', payload_list=True,
+            allowed_param=['account_id', 'campaign_ids', 'start_time', 'end_time', 
+                           'granularity', 'metrics', 'segmentation_type', 'platform']
+            require_auth=True
+        )
+    @property
+    def ad_funding_instruments(self):
+        """ :reference: https://ads-api.twitter.com/0/stats/accounts/:account_id/funding_instruments/:id
+            :allowed_param:'account_id', 'id', 'start_time', 'end_time', 'granularity', 'metrics', 'segmentation_type','country, 'platform'
+        """
+        return bind_api(
+            ad_api=self,
+            path='tats/accounts/{account_id}/funding_instruments/{id}.json',
+            payload_type='account', payload_list=True,
+            allowed_param=['account_id', 'id', 'start_time', 'end_time', 'granularity',
+                           'metrics', 'segmentation_type','country, 'platform']
+            require_auth=True
+        )
+                
     @staticmethod
     def _pack_image(filename, max_size, form_field="image", f=None):
         """Pack image from file into multipart-formdata post body"""
