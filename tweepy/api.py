@@ -1331,7 +1331,7 @@ class API(object):
         """
         return bind_api(
             ad_api=self,
-            path='tats/accounts/{account_id}/funding_instruments/{id}.json',
+            path='/stats/accounts/{account_id}/funding_instruments/{id}.json',
             payload_type='account', payload_list=True,
             allowed_param=['account_id', 'id', 'start_time', 'end_time', 'granularity',
                            'metrics', 'segmentation_type','country, 'platform']
